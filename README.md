@@ -1,38 +1,39 @@
-# TaskFlow – Project & Task Management Platform
+# ShopEase – Full-Stack E-Commerce Platform
 
-A full-stack productivity application for managing projects and tasks with real-time updates, role-based access, and a clean Kanban-style interface.
+A complete e-commerce web application with product browsing, shopping cart, secure checkout (Stripe), order tracking, and admin management.
 
 ## Features
-- User authentication with JWT (register/login/logout)
-- Create, update, and delete projects
-- Task management with priority levels (low / medium / high)
-- Kanban-style status columns: **Todo → In Progress → Review → Done**
-- Real-time notifications via Socket.io
-- Drag-and-drop task board
-- Deadline tracking & progress analytics
-- Role-based access (admin / member)
-- Secure input validation & OWASP best practices
+- User authentication (register/login) with JWT
+- Product catalog with search, category filters, and pagination
+- Shopping cart with quantity management (add/update/remove/clear)
+- Secure checkout integrated with **Stripe Payment Gateway**
+- Order placement & order history tracking
+- Admin panel: create, update, delete products; update order statuses
+- Email confirmation via **Nodemailer**
+- OOP design patterns & unit-tested API endpoints
 
 ## Tech Stack
-| Layer    | Technology                           |
-|----------|--------------------------------------|
-| Frontend | React.js, React Router, Axios        |
-| Backend  | Node.js, Express.js                  |
-| Database | MongoDB (Mongoose)                   |
-| Auth     | JWT, bcryptjs                        |
-| Realtime | Socket.io                            |
+| Layer    | Technology                              |
+|----------|-----------------------------------------|
+| Frontend | React.js, React Router, Axios           |
+| Backend  | Node.js, Express.js                     |
+| Database | MongoDB (Mongoose)                      |
+| Auth     | JWT, bcryptjs                           |
+| Payment  | Stripe API                              |
+| Email    | Nodemailer (Gmail SMTP)                 |
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js >= 16
 - MongoDB (local or Atlas)
+- Stripe account (test keys)
 
 ### Backend Setup
 ```bash
 cd backend
 npm install
-cp .env.example .env        # fill in MONGO_URI and JWT_SECRET
+cp .env.example .env     # fill in all values
 npm run dev
 ```
 
@@ -43,47 +44,54 @@ npm install
 npm start
 ```
 
-The app runs on **http://localhost:3000** and the API on **http://localhost:5000**.
+Frontend: **http://localhost:3000** | API: **http://localhost:5001**
 
 ## API Endpoints
 
 ### Auth
-| Method | Endpoint              | Description        |
-|--------|-----------------------|--------------------|
-| POST   | /api/auth/register    | Register new user  |
-| POST   | /api/auth/login       | Login              |
-| GET    | /api/auth/profile     | Get current user   |
+| Method | Endpoint             | Description   |
+|--------|----------------------|---------------|
+| POST   | /api/auth/register   | Register      |
+| POST   | /api/auth/login      | Login         |
 
-### Projects
-| Method | Endpoint              | Description        |
-|--------|-----------------------|--------------------|
-| GET    | /api/projects         | Get all projects   |
-| POST   | /api/projects         | Create project     |
-| GET    | /api/projects/:id     | Get project by ID  |
-| PUT    | /api/projects/:id     | Update project     |
-| DELETE | /api/projects/:id     | Delete project     |
+### Products
+| Method | Endpoint              | Description              |
+|--------|-----------------------|--------------------------|
+| GET    | /api/products         | Get all (search/filter)  |
+| GET    | /api/products/:id     | Get single product       |
+| POST   | /api/products         | Create (admin)           |
+| PUT    | /api/products/:id     | Update (admin)           |
+| DELETE | /api/products/:id     | Delete (admin)           |
 
-### Tasks
-| Method | Endpoint                          | Description           |
-|--------|-----------------------------------|-----------------------|
-| GET    | /api/tasks/project/:projectId     | Get tasks by project  |
-| POST   | /api/tasks                        | Create task           |
-| PUT    | /api/tasks/:id                    | Update task           |
-| DELETE | /api/tasks/:id                    | Delete task           |
+### Cart
+| Method | Endpoint                  | Description          |
+|--------|---------------------------|----------------------|
+| GET    | /api/cart                 | Get user's cart      |
+| POST   | /api/cart/add             | Add item to cart     |
+| PUT    | /api/cart/update          | Update item qty      |
+| DELETE | /api/cart/remove/:id      | Remove item          |
+| DELETE | /api/cart/clear           | Clear cart           |
+
+### Orders
+| Method | Endpoint               | Description           |
+|--------|------------------------|-----------------------|
+| POST   | /api/orders            | Place order           |
+| GET    | /api/orders/myorders   | Get my orders         |
+| GET    | /api/orders/:id        | Get order by ID       |
+| PUT    | /api/orders/:id/status | Update status (admin) |
 
 ## Project Structure
 ```
-taskflow/
+shopease/
 ├── backend/
-│   ├── models/          # Mongoose schemas (User, Project, Task)
-│   ├── routes/          # Express route handlers
-│   ├── middleware/       # JWT auth middleware
-│   └── server.js        # Entry point + Socket.io setup
+│   ├── models/        # User, Product, Order, Cart schemas
+│   ├── routes/        # Auth, Product, Order, Cart routes
+│   └── server.js      # Express entry point
 └── frontend/
     └── src/
-        ├── context/     # AuthContext (global state)
-        ├── pages/       # Login, Register, Dashboard, ProjectDetail
-        └── components/  # Navbar, TaskCard, etc.
+        ├── context/   # AuthContext, CartContext
+        ├── pages/     # Home, ProductPage, Cart, Orders, Login, Register
+        └── components/# Navbar, ProductCard
 ```
 
 ## Author

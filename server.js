@@ -1,55 +1,40 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const http = require('http');
-const { Server } = require('socket.io');
+const express   = require('express');
+const mongoose  = require('mongoose');
+const cors      = require('cors');
+const dotenv    = require('dotenv');
 
 dotenv.config();
 
 const authRoutes    = require('./routes/authRoutes');
-const projectRoutes = require('./routes/projectRoutes');
-const taskRoutes    = require('./routes/taskRoutes');
+const productRoutes = require('./routes/productRoutes');
+const orderRoutes   = require('./routes/orderRoutes');
+const cartRoutes    = require('./routes/cartRoutes');
 
-const app    = express();
-const server = http.createServer(app);
-const io     = new Server(server, { cors: { origin: '*' } });
-
-// ── Middleware ────────────────────────────────────────────────────────────────
+const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/auth',     authRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/tasks',    taskRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders',   orderRoutes);
+app.use('/api/cart',     cartRoutes);
 
-app.get('/', (req, res) => res.json({ message: 'TaskFlow API running' }));
+app.get('/', (req, res) => res.json({ message: 'ShopEase API running' }));
 
-// ── Socket.io – real-time task updates ───────────────────────────────────────
-io.on('connection', (socket) => {
-  console.log('Client connected:', socket.id);
+// 404 handler
+app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
 
-  socket.on('join_project', (projectId) => {
-    socket.join(projectId);
-    console.log(`Socket ${socket.id} joined project room ${projectId}`);
-  });
-
-  socket.on('task_updated', (data) => {
-    socket.to(data.projectId).emit('task_changed', data);
-  });
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
-  });
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Internal server error' });
 });
 
-// ── Database & Start ──────────────────────────────────────────────────────────
 mongoose
-  .connect(process.env.MONGO_URI || 'mongodb://localhost:27017/taskflow')
+  .connect(process.env.MONGO_URI || 'mongodb://localhost:27017/shopease')
   .then(() => {
     console.log('MongoDB connected');
-    const PORT = process.env.PORT || 5000;
-    server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    const PORT = process.env.PORT || 5001;
+    app.listen(PORT, () => console.log(`ShopEase API running on port ${PORT}`));
   })
-  .catch((err) => console.error('DB connection error:', err));
+  .catch((err) => console.error('DB error:', err));
